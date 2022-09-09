@@ -42,7 +42,9 @@ public class UpdateHandler : IUpdateHandler
 
     private async Task BotOnMessageReceived(Message message, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Receive message type: {MessageType}", message.Type);
+        string messString = $"Receive message type: {message.Type}. From Username: {message.From?.Username} id {message.From?.Id}";
+
+        _logger.LogInformation($"Receive message type: {message.Type}. From Username: {message.From?.Username} id {message.From?.Id}");
         if (message.Text is not { } messageText)
             return;
 
@@ -55,6 +57,7 @@ public class UpdateHandler : IUpdateHandler
             "/request"         => RequestContactAndLocation(_botClient, message, cancellationToken),
             "/inline_mode"     => StartInlineQuery(_botClient, message, cancellationToken),
             "/throw"           => FailingHandler(_botClient, message, cancellationToken),
+            "/start"           => _botClient.SendTextMessageAsync(message.From?.Id, "Hello! You start Bot."),
             _                  => Usage(_botClient, message, cancellationToken)
         };
         Message sentMessage = await action;
@@ -166,7 +169,8 @@ public class UpdateHandler : IUpdateHandler
                                  "/remove      - remove custom keyboard\n" +
                                  "/photo       - send a photo\n" +
                                  "/request     - request location or contact\n" +
-                                 "/inline_mode - send keyboard with Inline Query";
+                                 "/inline_mode - send keyboard with Inline Query\n" +
+                                 "/start - start Bot";
 
             return await botClient.SendTextMessageAsync(
                 chatId: message.Chat.Id,
